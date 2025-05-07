@@ -307,6 +307,46 @@
                 margin-left: var(--sidebar-width);
             }
         }
+
+        /* Code block styles */
+        .code-block {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            background-color: var(--secondary-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        .code-block .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .code-block .copy-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .dark .code-block pre {
+            background-color: #1e1e1e;
+        }
+
+        .dark .code-block .copy-button {
+            background-color: #2d2d2d;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -499,24 +539,14 @@
                     );
                 });
 
-                messageDiv.appendChild(markdownContent);
-                
-                // Add copy button for the entire message
-                const copyButton = document.createElement('button');
-                copyButton.className = 'copy-button';
-                copyButton.textContent = 'Copy';
-                copyButton.onclick = () => {
-                    navigator.clipboard.writeText(content);
-                    copyButton.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyButton.textContent = 'Copy';
-                    }, 2000);
-                };
-                messageDiv.appendChild(copyButton);
-                
                 // Add copy buttons to code blocks
-                messageDiv.querySelectorAll('pre code').forEach((block) => {
+                markdownContent.querySelectorAll('pre code').forEach((block) => {
                     const pre = block.parentElement;
+                    const codeBlock = document.createElement('div');
+                    codeBlock.className = 'code-block';
+                    pre.parentNode.insertBefore(codeBlock, pre);
+                    codeBlock.appendChild(pre);
+
                     const button = document.createElement('button');
                     button.className = 'copy-button';
                     button.textContent = 'Copy';
@@ -527,8 +557,10 @@
                             button.textContent = 'Copy';
                         }, 2000);
                     };
-                    pre.appendChild(button);
+                    codeBlock.appendChild(button);
                 });
+
+                messageDiv.appendChild(markdownContent);
             }
             
             chatContainer.appendChild(messageDiv);
