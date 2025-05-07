@@ -1,0 +1,7 @@
+langchain-core
+langchain-ollama
+langchain-community
+chromadb
+flask
+flask-cors
+python-dotenv
