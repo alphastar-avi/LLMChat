@@ -52,10 +52,18 @@ def initialize_knowledge_base(model_name="deepseek-r1:1.5b"):
 
 # Global variables to store the current QA chain and model
 current_qa_chain, current_model = initialize_knowledge_base()
+use_memory = True  # Default to using memory
 
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/api/toggle_memory', methods=['POST'])
+def toggle_memory():
+    global use_memory
+    data = request.json
+    use_memory = data.get('use_memory', True)
+    return jsonify({"success": True, "use_memory": use_memory})
 
 @app.route('/api/memory', methods=['GET'])
 def get_memory():
@@ -86,18 +94,27 @@ def chat():
     query = data.get('query')
     model = data.get('model', 'deepseek-r1:1.5b')
     
-    global current_qa_chain, current_model
+    global current_qa_chain, current_model, use_memory
     
     # If model changed, reinitialize the knowledge base
     if model != current_model:
         current_qa_chain, current_model = initialize_knowledge_base(model)
     
     try:
-        result = current_qa_chain.invoke({"query": query})
-        return jsonify({
-            "response": result["result"],
-            "sources": [doc.page_content for doc in result.get("source_documents", [])]
-        })
+        if use_memory:
+            result = current_qa_chain.invoke({"query": query})
+            return jsonify({
+                "response": result["result"],
+                "sources": [doc.page_content for doc in result.get("source_documents", [])]
+            })
+        else:
+            # Raw model inference without memory
+            llm = OllamaLLM(model=model, streaming=True)
+            response = llm.invoke(query)
+            return jsonify({
+                "response": response,
+                "sources": []
+            })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

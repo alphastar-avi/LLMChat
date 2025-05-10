@@ -385,6 +385,13 @@
                 <h1 class="text-2xl font-bold">Diary Chat Assistant</h1>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
+                        <label for="memoryToggle" class="text-sm font-medium">Memory:</label>
+                        <button id="memoryToggle" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-gray-200 dark:bg-gray-700">
+                            <span class="sr-only">Toggle memory mode</span>
+                            <span id="memoryToggleDot" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-0"></span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
                         <label for="modelInput" class="text-sm font-medium">Model:</label>
                         <input type="text" id="modelInput" 
                                class="border rounded px-3 py-2 focus:outline-none focus:border-blue-500 bg-transparent"
@@ -421,6 +428,46 @@
     <script>
         let currentModel = document.getElementById('modelInput').value;
         let originalMemoryContent = '';
+        let useMemory = true;
+
+        // Memory toggle handling
+        const memoryToggle = document.getElementById('memoryToggle');
+        const memoryToggleDot = document.getElementById('memoryToggleDot');
+
+        function updateMemoryToggle() {
+            if (useMemory) {
+                memoryToggle.classList.add('bg-green-500');
+                memoryToggle.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                memoryToggleDot.classList.add('translate-x-5');
+            } else {
+                memoryToggle.classList.remove('bg-green-500');
+                memoryToggle.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                memoryToggleDot.classList.remove('translate-x-5');
+            }
+        }
+
+        async function toggleMemory() {
+            useMemory = !useMemory;
+            try {
+                const response = await fetch('/api/toggle_memory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ use_memory: useMemory })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    updateMemoryToggle();
+                }
+            } catch (error) {
+                console.error('Error toggling memory:', error);
+            }
+        }
+
+        memoryToggle.addEventListener('click', toggleMemory);
+        updateMemoryToggle();
 
         // Theme handling
         const themeToggle = document.getElementById('themeToggle');
