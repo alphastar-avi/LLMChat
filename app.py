@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context
 from flask_cors import CORS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
@@ -100,23 +100,22 @@ def chat():
     if model != current_model:
         current_qa_chain, current_model = initialize_knowledge_base(model)
     
-    try:
-        if use_memory:
-            result = current_qa_chain.invoke({"query": query})
-            return jsonify({
-                "response": result["result"],
-                "sources": [doc.page_content for doc in result.get("source_documents", [])]
-            })
-        else:
-            # Raw model inference without memory
-            llm = OllamaLLM(model=model, streaming=True)
-            response = llm.invoke(query)
-            return jsonify({
-                "response": response,
-                "sources": []
-            })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    def generate():
+        try:
+            if use_memory:
+                # For memory mode, we'll stream the response
+                for chunk in current_qa_chain.stream({"query": query}):
+                    if "result" in chunk:
+                        yield f"data: {json.dumps({'chunk': chunk['result']})}\n\n"
+            else:
+                # For raw model mode, stream directly from Ollama
+                llm = OllamaLLM(model=model, streaming=True)
+                for chunk in llm.stream(query):
+                    yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
