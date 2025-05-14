@@ -2,6 +2,11 @@
 
 A local LLM chat application that uses your diary as a knowledge base for context-aware conversations.
 
+
+https://github.com/user-attachments/assets/671f6090-c43f-4b08-8303-8004e64c20bb
+
+
+
 ## Setup
 
 1. Install Ollama:
