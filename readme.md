@@ -1,6 +1,6 @@
-# Diary Chat Assistant
+# LLMChat
 
-A local LLM chat application that uses your diary as a knowledge base for context-aware conversations.
+A local LLM chat application and can also uses your Journal as a knowledge base for context-aware conversations.
 
 
 https://github.com/user-attachments/assets/671f6090-c43f-4b08-8303-8004e64c20bb
@@ -12,10 +12,7 @@ https://github.com/user-attachments/assets/671f6090-c43f-4b08-8303-8004e64c20bb
 1. Install Ollama:
 ```bash
 # macOS/Linux
-curl https://ollama.ai/install.sh | sh
-
-# Windows
-# Download from https://ollama.ai/download
+brew install ollama
 ```
 
 2. Install a model:
@@ -26,7 +23,7 @@ ollama pull deepseek-r1:1.5b
 3. Install application dependencies:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  
 pip install -r requirements.txt
 ```
 
@@ -34,8 +31,6 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-
-5. Access the application at `http://localhost:5000`
 
 ## Usage
 
