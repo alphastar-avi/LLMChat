@@ -42,5 +42,5 @@ python app.py
 
 - Backend: Flask, LangChain, Ollama
 - Frontend: HTML, CSS, JavaScript, Tailwind CSS
-- Database: Chroma (Vector Store)
+- Database: ChromaDB (Vector Store)
 
